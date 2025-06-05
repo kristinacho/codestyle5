@@ -1,16 +1,4 @@
-/**
- * Задание 1.10. Ограничение количества дорог между городами и управление путями.
- *
- * Измените сущности из задачи 1.3.3 таким образом, чтобы между двумя городами могла существовать только одна прямая дорога.
- * Другие пути между этими городами могут быть проложены только транзитом через другие города.
- * Города можно создавать с заранее заданными путями.
- * В любой момент времени возможно добавление новой дороги в любой город и удаление имеющейся дороги.
- * Задание 6.5. Сравнение городов по набору путей.
- * Измените сущность Город, полученную в задаче 2.1.10.
- * Переопределите метод сравнения объектов по состоянию таким образом, чтобы два города считались одинаковыми тогда,
- * когда у них одинаковый набор путей в другие города.
- * Также обеспечьте, чтобы подвид города из задачи 2.3.3 был сравним с городом из задачи 2.1.10.
- */
+/* Продолжение задания 1.10 и 6.5 */
 
 package ru.Beklemysheva.city;
 
@@ -22,7 +10,6 @@ import java.util.HashSet;
 
 /**
  * Класс, представляющий город с маршрутами в другие города.
- * Сравнение городов осуществляется по набору городов назначения.
  */
 public class City {
     private final String name;
@@ -30,7 +17,6 @@ public class City {
 
     /**
      * Создает новый город с указанным названием.
-     *
      * @param name название города
      */
     public City(String name) {
@@ -38,8 +24,7 @@ public class City {
     }
 
     /**
-     * Создает новый город с указанным названием и списком маршрутов.
-     *
+     * Создает новый город с указанным названием и маршрутами.
      * @param name название города
      * @param routes список маршрутов
      */
@@ -54,10 +39,9 @@ public class City {
     }
 
     /**
-     * Добавляет маршрут в город.
-     *
+     * Добавляет новый маршрут из этого города.
      * @param destination город назначения
-     * @param cost стоимость маршрута
+     * @param cost стоимость проезда
      */
     public void addRoute(City destination, double cost) {
         if (destination == null) {
@@ -68,21 +52,26 @@ public class City {
             System.out.println("Ошибка: стоимость должна быть положительной.");
             return;
         }
-
-        for (Route route : routes) {
-            if (route.getDestination().equals(destination)) {
-                System.out.println("Ошибка: маршрут до города " +
-                        destination.getName() + " уже существует.");
-                return;
-            }
+        if (hasRouteTo(destination)) {
+            System.out.println("Ошибка: маршрут уже существует.");
+            return;
         }
 
         routes.add(new Route(destination, cost));
     }
 
     /**
-     * Удаляет маршрут в указанный город.
-     *
+     * Проверяет наличие маршрута до указанного города.
+     * @param destination город назначения
+     * @return true если маршрут существует
+     */
+    private boolean hasRouteTo(City destination) {
+        return routes.stream()
+                .anyMatch(route -> route.getDestination().getName().equals(destination.getName()));
+    }
+
+    /**
+     * Удаляет маршрут до указанного города.
      * @param destination город назначения
      */
     public void removeRoute(City destination) {
@@ -90,74 +79,70 @@ public class City {
             System.out.println("Ошибка: город назначения не может быть null.");
             return;
         }
-
-        routes.removeIf(route -> route.getDestination().equals(destination));
+        routes.removeIf(route -> route.getDestination().getName().equals(destination.getName()));
     }
 
     /**
      * Возвращает название города.
-     *
-     * @return название города
+     * @return название города (не null)
      */
+
     public String getName() {
         return name;
     }
 
     /**
-     * Возвращает список маршрутов из города.
-     *
-     * @return список маршрутов
+     * Возвращает список маршрутов из этого города.
+     * @return новый список маршрутов (не null)
      */
+
     public List<Route> getRoutes() {
         return new ArrayList<>(routes);
     }
 
     /**
-     * Сравнивает города по набору городов назначения.
-     *
+     * Сравнивает города по названию и маршрутам.
      * @param o объект для сравнения
-     * @return true, если города имеют одинаковый набор городов назначения
+     * @return true если города равны
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || !(o instanceof City)) {
-            return false;
-        }
-
-        City otherCity = (City) o;
-        return getDestinationSet().equals(otherCity.getDestinationSet());
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        City city = (City) o;
+        return name.equals(city.name) && routesEqual(city.routes);
     }
 
     /**
-     * Генерирует хэш-код на основе множества городов назначения.
-     *
-     * @return хэш-код
+     * Сравнивает маршруты двух городов.
+     * @param otherRoutes маршруты другого города
+     * @return true если маршруты эквивалентны
      */
+    private boolean routesEqual(List<Route> otherRoutes) {
+        if (routes.size() != otherRoutes.size()) return false;
+
+        Set<String> thisDestinations = new HashSet<>();
+        Set<String> otherDestinations = new HashSet<>();
+
+        routes.forEach(r -> thisDestinations.add(r.getDestination().getName()));
+        otherRoutes.forEach(r -> otherDestinations.add(r.getDestination().getName()));
+
+        return thisDestinations.equals(otherDestinations);
+    }
+
+    /**
+     * Возвращает хэш-код города, вычисленный на основе его имени.
+     * @return значение хэш-кода
+     */
+
     @Override
     public int hashCode() {
-        return Objects.hash(getDestinationSet());
+        return Objects.hash(name);
     }
 
     /**
-     * Возвращает множество городов назначения для сравнения.
-     *
-     * @return множество городов назначения
-     */
-    private Set<City> getDestinationSet() {
-        Set<City> destinations = new HashSet<>();
-        for (Route route : routes) {
-            destinations.add(route.getDestination());
-        }
-        return destinations;
-    }
-
-    /**
-     * Возвращает строковое представление города и его маршрутов.
-     *
-     * @return строковое представление города
+     * Возвращает строковое представление города
+     * @return строковое представление города с маршрутами
      */
     @Override
     public String toString() {

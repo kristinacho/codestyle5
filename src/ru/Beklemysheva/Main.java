@@ -1,12 +1,12 @@
 package ru.Beklemysheva;
 
 import ru.Beklemysheva.fraction.Fraction;
+import ru.Beklemysheva.fraction.NumberFraction;
 import ru.Beklemysheva.inputhandler.Inputhandler;
 import ru.Beklemysheva.inputhandler.config.IntInputConfig;
 import ru.Beklemysheva.inputhandler.config.DoubleInputConfig;
 import ru.Beklemysheva.inputhandler.config.StringInputConfig;
 import ru.Beklemysheva.city.City;
-import ru.Beklemysheva.city.Route;
 import ru.Beklemysheva.city.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +19,8 @@ public class Main {
         demonstrateNumberAddition();
         handleCityTask();
         demonstratePathTask();
+        demonstrateForbiddenFraction();
+        demonstrateFractionAsNumber();
     }
     private static void demonstrateFractionOperations() {
         System.out.println("№1.4. Дроби");
@@ -37,7 +39,7 @@ public class Main {
     }
 
     private static void handleCityTask() {
-        System.out.println("\n№1.10. Задание 3.3 - Города");
+        System.out.println("\n№1.10.Города");
 
         List<City> cities = new ArrayList<>();
 
@@ -56,31 +58,13 @@ public class Main {
         cities.add(F);
 
         A.addRoute(B, 5);
-        B.addRoute(A, 5);
-
         A.addRoute(D, 6);
-        D.addRoute(A, 6);
-
         A.addRoute(F, 1);
-        F.addRoute(A, 1);
-
         B.addRoute(F, 1);
-        F.addRoute(B, 1);
-
         B.addRoute(C, 3);
-        C.addRoute(B, 3);
-
         C.addRoute(D, 4);
-        D.addRoute(C, 4);
-
         D.addRoute(E, 2);
-        E.addRoute(D, 2);
-
         E.addRoute(F, 2);
-        F.addRoute(E, 2);
-
-        System.out.println("\nСтандартная карта городов:");
-        cities.forEach(System.out::println);
 
         StringInputConfig cityNameConfig = new StringInputConfig.Builder()
                 .setPrompt("Введите название нового города: ")
@@ -148,33 +132,48 @@ public class Main {
 
         A.addRoute(B, 5);
         B.addRoute(A, 5);
+
         A.addRoute(D, 6);
         D.addRoute(A, 6);
+
         A.addRoute(F, 1);
         F.addRoute(A, 1);
+
         B.addRoute(F, 1);
         F.addRoute(B, 1);
+
         B.addRoute(C, 3);
         C.addRoute(B, 3);
+
         C.addRoute(D, 4);
         D.addRoute(C, 4);
+
         D.addRoute(E, 2);
         E.addRoute(D, 2);
+
         E.addRoute(F, 2);
         F.addRoute(E, 2);
 
-        Path path = new Path(F, D);
+        if (F == null || D == null) {
+            System.out.println("Ошибка: один из городов не создан!");
+            return;
+        }
 
-        System.out.println("Маршрут из F в D: " + path);
+        Path path = new Path(F, D);
+        if (path.getStart() != null && path.getEnd() != null) {
+            System.out.println("Маршрут из F в D: " + path);
+        } else {
+            System.out.println("Не удалось создать маршрут из-за ошибки в городах");
+        }
 
         System.out.println("\n№6.5. Сравнение городов");
 
         City X = new City("X");
         City Y = new City("Y");
         X.addRoute(A, 1);
-        Y.addRoute(A, 2); // стоимость разная, но город назначения тот же
+        Y.addRoute(A, 2);
 
-        System.out.println("Города X и Y равны? " + X.equals(Y)); // true
+        System.out.println("Города X и Y равны? " + X.equals(Y));
 
         Y.addRoute(B, 3);
         System.out.println("Города X и Y равны после изменения? " + X.equals(Y));
@@ -231,4 +230,52 @@ public class Main {
                         .build()
         );
     }
+
+
+    private static void demonstrateForbiddenFraction() {
+        System.out.println("\n№3.1. Запретная дробь");
+
+        Fraction f1 = new Fraction(3, 4);
+        Fraction f2 = new Fraction(-2, 5);
+        Fraction f3 = new Fraction(4, -6);
+        Fraction f4 = new Fraction(0, 1);
+
+        System.out.println("Дробь 1: " + f1);
+        System.out.println("Дробь 2: " + f2);
+        System.out.println("Дробь 3 (изначально 4/-6): " + f3);
+        System.out.println("Дробь 4: " + f4);
+
+        System.out.println("\nАрифметические операции:");
+        System.out.println(f1 + " + " + f2 + " = " + f1.add(f2));
+        System.out.println(f1 + " - " + f3 + " = " + f1.subtract(f3));
+        System.out.println(f2 + " * " + f3 + " = " + f2.multiply(f3));
+        System.out.println(f1 + " / " + f2 + " = " + f1.divide(f2));
+
+    }
+
+    private static void demonstrateFractionAsNumber() {
+        System.out.println("\n№4.2. Дробь это число");
+
+        NumberFraction f1 = inputNumberFraction("первую");
+        NumberFraction f2 = inputNumberFraction("вторую");
+
+        System.out.println("\nРезультаты операций как Number:");
+        System.out.println("Сумма (double): " + f1.add(f2).doubleValue());
+        System.out.println("Разность (int): " + f1.subtract(f2).intValue());
+        System.out.println("Произведение (float): " + f1.multiply(f2).floatValue());
+        System.out.println("Частное (long): " + f1.divide(f2).longValue());
+
+        Number num = f1;
+        System.out.println("Дробь как Number: " + num.doubleValue());
+    }
+
+    private static NumberFraction inputNumberFraction(String fractionName) {
+        System.out.println("\nВведите " + fractionName + " дробь:");
+        int numerator = Inputhandler.getInt(new IntInputConfig.Builder()
+                .setPrompt("Числитель: ")
+                .build());
+        int denominator = getValidDenominator();
+        return new NumberFraction(numerator, denominator);
+    }
+
 }

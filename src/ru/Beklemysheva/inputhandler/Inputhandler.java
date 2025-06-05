@@ -14,10 +14,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
+/**
+ * Класс InputHandler предоставляет методы для обработки и валидации различных типов входных данных.
+ */
 public class Inputhandler {
 
+    /**
+     * Защищенный конструктор для предотвращения создания экземпляров класса.
+     */
     protected Inputhandler() {}
 
+    /**
+     * Отображает подсказку для ввода пользователя.
+     *
+     * @param prompt Подсказка для отображения.
+     * @param formatHint Подсказка формата для отображения.
+     */
     public static void showPrompt(String prompt, String formatHint) {
         if (formatHint != null && !formatHint.isEmpty()) {
             System.out.println("Format: " + formatHint);
@@ -25,6 +37,11 @@ public class Inputhandler {
         System.out.print(prompt.isEmpty() ? "> " : prompt);
     }
 
+    /**
+     * Получает и возвращает обрезанный ввод пользователя.
+     *
+     * @return Обрезанный ввод пользователя.
+     */
     private static String getTrimmedInput() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
@@ -35,6 +52,12 @@ public class Inputhandler {
         }
     }
 
+    /**
+     * Получает и возвращает целое число от пользователя на основе заданной конфигурации.
+     *
+     * @param config Конфигурация для ввода целого числа.
+     * @return Целое число, введенное пользователем.
+     */
     public static int getInt(IntInputConfig config) {
         while (true) {
             showPrompt(config.getPrompt(), config.getFormatHint());
@@ -82,6 +105,11 @@ public class Inputhandler {
         }
     }
 
+    /**
+     * Получает и возвращает число с плавающей запятой от пользователя на основе заданной конфигурации.
+     * @param config Конфигурация для ввода числа с плавающей запятой.
+     * @return Число с плавающей запятой, введенное пользователем.
+     */
     public static double getDouble(DoubleInputConfig config) {
         while (true) {
             showPrompt(config.getPrompt(), config.getFormatHint());
@@ -129,6 +157,11 @@ public class Inputhandler {
         }
     }
 
+    /**
+     * Получает и возвращает строку от пользователя на основе заданной конфигурации.
+     * @param config Конфигурация для ввода строки.
+     * @return Строка, введенная пользователем.
+     */
     public static String getString(StringInputConfig config) {
         while (true) {
             showPrompt(config.getPrompt(), config.getFormatHint());
@@ -182,6 +215,12 @@ public class Inputhandler {
         }
     }
 
+    /**
+     * Получает и возвращает булево значение от пользователя.
+     *
+     * @param prompt Подсказка для отображения.
+     * @return Булево значение, введенное пользователем.
+     */
     public static boolean getBoolean(String prompt) {
         while (true) {
             showPrompt(prompt, "");
@@ -204,7 +243,13 @@ public class Inputhandler {
         }
     }
 
-    public static  Path getFilePath(FileCheckConfig config) {
+    /**
+     * Получает и возвращает путь к файлу от пользователя на основе заданной конфигурации.
+     *
+     * @param config Конфигурация для проверки файла.
+     * @return Путь к файлу, введенный пользователем.
+     */
+    public static Path getFilePath(FileCheckConfig config) {
         while (true) {
             System.out.print("Input file path: ");
             String input = getTrimmedInput();
@@ -216,6 +261,13 @@ public class Inputhandler {
         }
     }
 
+    /**
+     * Проверяет валидность файла на основе заданной конфигурации.
+     *
+     * @param path Путь к файлу.
+     * @param config Конфигурация для проверки файла.
+     * @return true, если файл валиден, иначе false.
+     */
     private static boolean checkFileValidity(Path path, FileCheckConfig config) {
         if (config.isCheckExistence() && !Files.exists(path)) {
             String error = config.getErrorMsg().isEmpty()
@@ -244,8 +296,6 @@ public class Inputhandler {
                 return false;
             }
         }
-
         return true;
     }
-
 }
